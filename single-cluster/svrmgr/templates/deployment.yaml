@@ -1,24 +1,19 @@
-piVersion: extensions/v1beta1
+apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: appmgr
+  name: svrmgr
   namespace: manage
 spec:
   replicas: 1
-  strategy:
-    rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 1
-    type: RollingUpdate
   template:
     metadata:
       labels:
-        app: appmgr
+        app: svrmgr
         track: stable
     spec:
       containers:
-      - name: appmgr
-        image: harbor.paas.nl:5000/paas_platform/nl.paas.appmgr:2.3
+      - name: svrmgr
+        image: harbor.paas.nl:5000/paas_platform/nl.paas.svrmgr:2.3
         imagePullPolicy: Always
         env:
         - name: PF_NODE_IP
@@ -33,6 +28,13 @@ spec:
           value: "/nl/paas/jdklogs"
         ports:
         - containerPort: 8080
+        resources:
+           requests:
+             cpu: 1
+             memory: 3Gi
+           limits:
+             cpu: 1
+             memory: 3Gi
         volumeMounts:
         - name: localtime
           mountPath: /etc/localtime
