@@ -1,0 +1,49 @@
+piVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: appmgr
+  namespace: manage
+spec:
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: appmgr
+        track: stable
+    spec:
+      containers:
+      - name: appmgr
+        image: harbor.paas.nl:5000/paas_platform/nl.paas.appmgr:2.3
+        imagePullPolicy: Always
+        env:
+        - name: PF_NODE_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: SPRING_PROFILES_ACTIVE
+          value: dev93
+        - name: JVM_OPTS
+          value: "-XX:MaxRAMPercentage=70.0 -XX:InitialRAMPercentage=70.0 -XX:MinRAMPercentage=70.0"
+        - name: LOG_PATH
+          value: "/nl/paas/jdklogs"
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - name: localtime
+          mountPath: /etc/localtime
+        - name: localpath
+          mountPath: /nl/paas
+        - name: log4j2
+          mountPath: /usr/local/nldata/config
+      volumes:
+      - name: localtime
+        hostPath:
+          path: /etc/localtime
+      - name: localpath
+        hostPath:
+          path: /dcoslog/nl/paas
